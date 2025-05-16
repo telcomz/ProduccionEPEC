@@ -26,13 +26,6 @@ services:
       PMA_USER: iotuser
       PMA_PASSWORD: iotpass
 
-  adminer:
-    image: adminer
-    container_name: adminer
-    restart: always
-    ports:
-      - "8081:8080"
-
   node-red:
     image: nodered/node-red
     container_name: node-red
