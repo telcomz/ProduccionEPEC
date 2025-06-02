@@ -1,4 +1,3 @@
-
 version: '3.8'
 
 services:
@@ -8,40 +7,47 @@ services:
     restart: always
     environment:
       POSTGRES_DB: thingsboard
-      POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   thingsboard:
-    image: thingsboard/tb-postgres:latest
+    image: thingsboard/tb:3.5.1
     container_name: thingsboard
     restart: always
     depends_on:
       - postgres
     ports:
-      - "8080:8080"   # Interfaz web
+      - "8080:9090"   # Web
       - "1883:1883"   # MQTT
     environment:
-      TB_QUEUE_TYPE: in-memory
+      DATABASE_TS_TYPE: sql
+      DATABASE_ENTITIES_TYPE: sql
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thingsboard
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-
-  node-red:
-    image: nodered/node-red
-    container_name: node-red
-    restart: always
-    ports:
-      - "1880:1880"
     volumes:
-      - node_red_data:/data
+      - tb-data:/data
+      - tb-logs:/var/log/thingsboard
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8081:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
   mariadb:
     image: mariadb:latest
-    container_name: mysql
+    container_name: mariadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
@@ -51,29 +57,22 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
     restart: always
-    ports:
-      - "8082:80"
     environment:
-      PMA_HOST: mysql
+      PMA_HOST: mariadb
       PMA_USER: iotuser
       PMA_PASSWORD: iotpass
-
-  snmp-agent:
-    build: ./snmpd
-    container_name: snmp-agent
-    restart: always
     ports:
-      - "161:161/udp"
-    environment:
-      SNMP_RO_COMMUNITY: "public"
+      - "8082:80"
 
 volumes:
   postgres-data:
-  mysql-data:
-  node_red_data:
+  tb-data:
+  tb-logs:
+  pgadmin-data:
+  mariadb-data:
