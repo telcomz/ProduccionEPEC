@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  
+  postgres:
+    image: postgres:13
+    container_name: postgres_tb
+    restart: always
+    environment:
+      POSTGRES_DB: thingsboard
+      POSTGRES_USER: tb_user
+      POSTGRES_PASSWORD: tb_pass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  thingsboard:
+    image: thingsboard/tb-postgres
+    container_name: thingsboard
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"  # Mapeo directo al puerto original
+    environment:
+      TB_QUEUE_TYPE: in-memory
+      DATABASE_HOST: postgres_tb
+      DATABASE_NAME: thingsboard
+      DATABASE_USERNAME: tb_user
+      DATABASE_PASSWORD: tb_pass
+
+volumes:
+  postgres-data:
+
+
+
