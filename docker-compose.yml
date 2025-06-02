@@ -15,17 +15,16 @@ services:
       - "5432:5432"
 
   thingsboard:
-    image: thingsboard/tb:3.5.1
+    image: thingsboard/tb-postgres:3.5.1
     container_name: thingsboard
     restart: always
     depends_on:
       - postgres
     ports:
-      - "8080:9090"   # Web
+      - "8080:8080"   # Web UI
       - "1883:1883"   # MQTT
     environment:
-      DATABASE_TS_TYPE: sql
-      DATABASE_ENTITIES_TYPE: sql
+      TB_QUEUE_TYPE: in-memory
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thingsboard
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
