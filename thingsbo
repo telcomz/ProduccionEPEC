@@ -1,3 +1,5 @@
+
+
 version: '3.8'
 
 services:
@@ -20,16 +22,45 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8080:8080"  # Mapeo directo al puerto original
+      - "8080:8080"
+#      - "1883:1883"
     environment:
       TB_QUEUE_TYPE: in-memory
       DATABASE_HOST: postgres_tb
       DATABASE_NAME: thingsboard
       DATABASE_USERNAME: tb_user
       DATABASE_PASSWORD: tb_pass
+      HTTP_BIND_PORT: 8080
+
+  node-red:
+    image: nodered/node-red
+    container_name: node-red
+    restart: always
+    ports:
+      - "1880:1880"
+    volumes:
+      - node-red-data:/data
+    depends_on:
+      - thingsboard
+
+  snmp-agent:
+    build: ./snmpd
+    container_name: snmp-agent
+    restart: always
+    ports:
+      - "161:161/udp"
+    environment:
+      SNMP_RO_COMMUNITY: "public"
+
+adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8081:8080"
 
 volumes:
   postgres-data:
-
+  node-red-data:
 
 
